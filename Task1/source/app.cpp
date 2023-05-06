@@ -1,6 +1,11 @@
 #include "app.h"
 
 app::app() {
+    std::cout << "Triangle collision checker.\n"
+                    "When you click the left mouse button you move the green triangle,\n"
+                    "when you click the right mouse button you move the blue triangle.\n"
+                    "If the triangles are red, there is a collision.\n";
+
     // Window SFML
     window.create(sf::VideoMode(800, 600), "Are triangles colliding?");
     window.clear(sf::Color::White);
@@ -55,7 +60,19 @@ void app::events() {
                     for (int i = 0; i < 3; ++i) {
                         shape2.setPoint(i, sf::Vector2f(t2.points[i].x, t2.points[i].y));
                     }
-                }                
+                }
+
+                // Collision check
+                if (isColliding(t1, t2)) {
+                    std::cout << "Collision detected!\n";
+                    shape1.setFillColor(sf::Color::Red);
+                    shape2.setFillColor(sf::Color::Red);
+                }
+                else {
+                    std::cout << "No collision.\n";
+                    shape1.setFillColor(sf::Color::Green);
+                    shape2.setFillColor(sf::Color::Blue);
+                }
             }
         }
 
