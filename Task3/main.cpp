@@ -4,9 +4,8 @@
 #include "Predicate.h"
 
 int main() {
-    std::string text = "      123 example      ";
+    std::string text = "      More examples in tests/test.cpp     ";
     std::cout << text << std::endl;
-    trimString(text, isWhitespace);
-    std::cout << text << std::endl;
+    std::cout << trimString(text, isWhitespace);
     return 0;
 }
