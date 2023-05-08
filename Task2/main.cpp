@@ -145,6 +145,28 @@ struct Position
 {
     float x;
     float y;
+
+    Position operator+(const Position& other) const
+    {
+        return Position{ x + other.x, y + other.y };
+    }
+
+    Position operator-(const Position& other) const
+    {
+        return Position{ x - other.x, y - other.y };
+    }
+
+    Position operator*(float f) const
+    {
+        return { x * f, y * f };
+    }
+
+    Position& operator=(const Position& other)
+    {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
 };
 
 
@@ -154,20 +176,50 @@ using Pixel = char;
 class Engine
 {
 public:
+    Engine(int rep = 5) : rep(rep) {}
+
     void update(chrono::milliseconds deltaTime)
     {
+        if (rep > 0)
+        {
+            if (time < pathTimes[0])
+                calcPosition(positions[0], positions[1], 0ms, time, pathTimes[0]);
+            else if (time < (pathTimes[0] + pathTimes[1]))
+                calcPosition(positions[1], positions[2], pathTimes[0], time, pathTimes[1]);
+            else if (time < (pathTimes[0] + pathTimes[1] + pathTimes[2]))
+                calcPosition(positions[2], positions[0], pathTimes[0] + pathTimes[1], time, pathTimes[2]);
+            else
+            {
+                rep--;
+                time = 0ms;
+            }
 
-
+            time += deltaTime;
+        }
     }
-
 
     void render(Screen& screen)
     {
         screen.draw(pixel, position.x, position.y);
     }
 private:
+    void calcPosition(Position p0, Position p1, chrono::milliseconds time0, chrono::milliseconds time, chrono::milliseconds pathTime)
+    {
+        float percent = calcPercentOfPath(pathTime, time0, time);
+        position = p0 + (p1 - p0) * percent;
+    }
+
+    float calcPercentOfPath(const chrono::milliseconds& pathTime, const chrono::milliseconds& time0, const chrono::milliseconds& time)
+    {
+        return static_cast<float>((time - time0).count()) / static_cast<float>(pathTime.count());
+    }
+
     Pixel pixel{ 1 };
     Position position{ 0.0f, 0.0f };
+    const Position positions[3]{ { 0.0f, 0.0f }, { 40.0f, 0.0f }, { 40.0f, 10.0f } }; //A, B, C
+    const chrono::milliseconds pathTimes[3]{ std::chrono::milliseconds(2000), std::chrono::milliseconds(3000), std::chrono::milliseconds(1000) }; // A->B, B->C, C->A
+    int rep;
+    chrono::milliseconds time = 0ms;
 };
 
 
